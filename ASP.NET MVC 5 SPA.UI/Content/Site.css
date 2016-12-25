@@ -1,0 +1,189 @@
+﻿/*
+1. GLOBAL STYLES (USED IN VARIOUS SECTION OF THE WEBSITE)
+    1.1. GENERAL STYLES
+
+2. PRELOADER
+
+3. POPUP
+
+4. COMPONENTS (ELEMENTS USED IN MANY SECTION)
+    4.1. BUTTON
+    4.2. ERORR
+
+5. SECTION STYLES & COMPONENTS    
+    5.1. TABLE
+    5.2. FORM    
+    5.3. FLEX
+-----------------------------------------------------------------------*/
+
+/*---------------------------------------------------------------------*/
+/*  1. GLOBAL STYLES
+/*  1.1. GENERAL STYLES
+/*---------------------------------------------------------------------*/
+/* Set padding to keep content from hitting the edges */
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+    font-size: 14px;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+th, td{
+    text-align: center;    
+}
+
+/*---------------------------------------------------------------------*/
+/*  2. PRELOADER
+/*---------------------------------------------------------------------*/
+#preloader {
+    /*временно*/
+    /*display:none;*/
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #fff;
+    z-index: 1400;
+}
+
+#status {
+    width: 200px;
+    height: 200px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+/*
+    background-image: url(../images/loader.gif);
+    background-repeat: no-repeat;
+    background-position: center; 
+*/
+    background: url(../images/loader.gif) no-repeat center;
+    margin: -100px 0 0 -100px;
+}
+
+/*---------------------------------------------------------------------*/
+/*  3. POPUP
+/*---------------------------------------------------------------------*/
+.popup_container {    
+    width: 100%;
+    height: 2000px;
+    background-color: rgba(0,0,0,0.5);
+    position: fixed;
+    top: 0;
+    overflow: hidden;    /* Весь контент, что вылазит за приделы дива обрезается/прячется */
+}
+
+.popup_container .popup_content {
+    margin: 3% auto;
+    height: 65vh; /* процент занимаемого расстояния в зависимости от экрана устройства*/
+    min-height: 13%;    /* чтоб не зажимало сильно и не вылазило*/
+    width: 50vw; /* процент занимаемого расстояния в зависимости от экрана устройства*/
+    min-width: 196px;  /* что бы inputы не вылазили за пределы */
+    background-color: #c5c5c5;
+    border-radius: 5px;
+    box-shadow: 0px 0px 15px #fff;
+}
+
+.popup_container.popup_off{
+    display: none;
+}
+
+/*---------------------------------------------------------------------*/
+/*  4. COMPONENTS
+/*  4.1. BUTTON
+/*---------------------------------------------------------------------*/
+.btn-right{
+    float: right;
+    margin: 0 0 8px 8px;
+}
+/*---------------------------------------------------------------------*/
+/*  4.2. ERORR
+/*---------------------------------------------------------------------*/
+#error{
+    color: red;
+    font-size: 2em;
+}
+
+/*---------------------------------------------------------------------*/
+/*  5. SECTION STYLES & COMPONENTS
+/*  5.1 SECTION - TABLE
+/*---------------------------------------------------------------------*/
+.id_cell{
+    display: none;
+}
+
+#tableData.container {
+    margin-top: 8px;
+}
+
+#tableData table.table-bordered{
+    border: none;
+}
+    
+table>thead>tr:first-child {
+    background-color: #d4bfec;
+    color: white;
+}
+
+table>thead>tr:first-child>th {
+    border-top: 1px solid #ddd !important;
+    vertical-align: middle; /*выравнивание по вертикали*/
+}
+
+table>tbody>tr>td{
+    background-color: #dff0d8;
+}
+
+table>tbody>tr>td:last-child{
+    background-color: #d9edf7;
+}
+
+table>tbody>tr.active_tr_data>td{
+    background-color: #f5f5f5;
+}
+
+/*---------------------------------------------------------------------*/
+/*  5.2. FORM
+/*---------------------------------------------------------------------*/
+form{
+    padding: 12px 0 10px 0;
+}
+
+/*---------------------------------------------------------------------*/
+/*  5.3. FLEX
+/*---------------------------------------------------------------------*/
+.flex-container {
+    display: flex;
+    /*flex-direction: column; /*Устанавливает главную ось main-axis, определяя тем самым направление для flex-элементов, размещаемых в контейнере. row | row-reverse | column | column-reverse*/
+    flex-wrap: wrap; /*Определяет, будет ли контейнер однострочным или многострочным, а также направление поперечной оси, определяющей направление, в котором будут располагаться новые строки. nowrap | wrap | wrap-reverse*/
+    /*flex-flow: <'flex-direction'> || <'flex-wrap'> /* Это сокращение для свойств flex-direction и flex-wrap, вместе определяющих главную и поперечную оси. По умолчанию принимает значение row nowrap.*/
+    justify-content: center; /*Определяет выравнивание относительно главной оси. Помогает распределить оставшееся свободное место в случае, когда элементы строки не «тянутся», либо тянутся, но уже достигли своего максимального размера. 
+		flex-start (по умолчанию): элементы сдвигаются к началу строки;
+		flex-end: элементы сдвигаются к концу строки;
+		center: элементы выравниваются по центру строки;
+		space-between: элементы распределяются равномерно (первый элемент в начале строки, последний — в конце);
+		space-around: элементы распределяются равномерно с равным расстоянием между собой и границами строки.*/
+    /* align-items: flex-start*/ /*Определяет поведение по умолчанию для того, как flex-элементы располагаются относительно поперечной оси на текущей строке. Считайте это версией justify-content для поперечной оси (перпендикулярной к основной).
+		flex-start: граница cross-start для элементов располагается на позиции cross-start;
+		flex-end: граница cross-end для элементов располагается на позиции cross-end;
+		center: элементы выравниваются по центру поперечной оси;
+		baseline: элементы выравниваются по своей базовой линии;
+		stretch (по умолчанию): элементы растягиваютcя, заполняя контейнер (с учётом  min-width/max-width).*/
+    align-content: space-around; */ /*Выравнивает строки flex-контейнера при наличии свободного места на поперечной оси аналогично тому, как это делает justify-content на главной оси.
+		flex-start: строки выравниваются относительно начала контейнера;
+		flex-end: строки выравниваются относительно конца контейнера;
+		center: строки выравниваются по центру контейнера;
+		space-between: строки распределяются равномерно (первая строка в начале строки, последняя — в конце);
+		space-around: строки распределяются равномерно с равным расстоянием между собой;
+    stretch (по умолчанию): строки растягиваются, заполняя свободное пространство.*/
+}
+
+form.flex-container>input{
+    flex-basis: 90%;
+}
+
+form.flex-container>input:last-child {
+    flex-basis: auto;
+    margin: 0 33%;
+}

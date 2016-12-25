@@ -1,0 +1,382 @@
+﻿
+<div class="popup_container popup_off">
+    <form id="formUser" class="popup_content flex-container">
+        <input type="text" name="Id" style="display:none" />
+        <input type="number" name="Number" required placeholder="Number" />
+        <input type="datetime" name="Date" required placeholder="Date" pattern="\d{1,2}\s\d{1,2}\s\d{4}" title="Enter a date(Format: 01 06 2013)" />
+        <input type="text" name="Company" required placeholder="Company" />
+        <input type="text" name="FirstName" required placeholder="First Name" pattern="[ A-Za-zА-Яа-яЁё]+" title="Enter only text" />
+        <input type="text" name="SecondName" required placeholder="Second Name" pattern="[ A-Za-zА-Яа-яЁё]+" title="Enter only text" />
+        <input type="text" name="LastName" required placeholder="Last Name" pattern="[ A-Za-zА-Яа-яЁё]+" title="Enter only text" />
+        <input type="text" name="Position" required placeholder="Position" />
+        <input type="email" name="Email" required placeholder="Enter a valid email address" pattern="^[a-zA-Z0-9._+-]+@("@")[a-zA-Z0-9.-]+\.[a-zA-Z]{2,9}$" title="Enter a email(Format: index@mail.com)" />       
+        <input type="submit" name="Submit" class="btn btn-success btn-md">
+    </form>
+</div>
+
+
+<section>
+    <article>
+        <div id="tableData" class="container">
+
+            <button id="delete" class="btn btn-danger btn-right">Delete</button>
+            <button id="edit" class="btn btn-warning btn-right">Edit</button>
+            <button id="create" class="btn btn-success btn-right">Create</button>
+
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered">
+                    <thead>
+                        <tr>
+                            <th class="id_cell">Id</th>
+                            <th>Number</th>
+                            <th>Date</th>
+                            <th>Company</th>
+                            <th>First Name</th>
+                            <th>Second Name</th>
+                            <th>Last Name</th>
+                            <th>Position</th>
+                            <th>Email</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div><h3 id="error"></h3></div>
+        </div>
+    </article>
+</section>
+
+@section scripts{
+<script type="text/javascript">
+/*-------------------------------------------------------------------*/
+/*  1. Preloader.
+/*-------------------------------------------------------------------*/
+$(window).ready(function () {
+    $('#status').fadeOut();
+    $('#preloader').delay(350).fadeOut('slow');
+    $('body').delay(350).css({ 'overflow': 'visible' });
+});
+
+/*-------------------------------------------------------------------*/
+/*  2. Setting function for sending and receiving data.
+/*-------------------------------------------------------------------*/
+$(document).ready(function () {
+
+    //Creating an object to hide implementation
+    function ObjUI() {
+
+        //General data
+        var table = $('#tableData');
+        var baseUrl = '@Url.RouteUrl("DefaultApi", new { httproute = "", controller = "Date" })';
+        var form = $('#formUser');
+        var tbodyTr;   
+        var eventSubmit; 
+        var inputSubmit = $('input[type="submit"]');
+        var getThis = this;
+
+        // Selection of posts on the error code
+        var errorHandler = function (xhr, textStatus, error) {
+
+            switch (xhr.status) {
+                case 400:
+                    $('#error').html('<span>The requested resource is not available on the server.</span>');
+                    break;
+                case 404:
+                    $('#error').html('<span>The requested resource is not available on the server.</span>');
+                    break;
+                case 415:
+                    $('#error').html('<span>Unsupported Media Type.</span>');
+                    break;
+                case 500:
+                    $('#error').html('<span>Unknown error.</span>');
+                    break;                    
+                default:
+                    $('#error').html('<span>' + error + '</span>');                    
+            }
+
+            form.parent().addClass('popup_off');          
+        };
+
+        // Get object user with data form
+        var getObjUser = function () {
+
+            var objUser = new Object();
+            form.find('input').each(function (number, element) {                
+                var isSubmit = $(this).is(':submit');
+
+                if (!isSubmit) {
+                    if ($(this).attr('name') == 'Date') {                        
+                        objUser[$(this).attr('name')] = $(this).val().replace(/(\d+).(\d+).(\d+)/, '$3/$2/$1');                                            
+                    } else {
+                        objUser[$(this).attr('name')] = $(this).val();
+                    }
+                }
+            })
+            return objUser;
+        };
+
+        //Reset the data in the form fields and hidden form
+        var resetForm = function () {
+            form.parent().addClass('popup_off');            
+            form[0].reset();
+        };
+
+        // Maping data active tr on form
+        var mapingDataOnForm = function () {
+            var classData = $('#tableData table tbody tr.active_tr_data').find('td');
+            var formInput = form.find('input');
+
+            for (var i = 0; i < classData.length; i++) {
+                formInput.eq(i).val(classData.eq(i).text());
+            }
+        };
+
+        // Add click on form for cancel
+        this.cancelForm = function () {
+            
+            $('div.popup_container').on('click', function (event) {
+                var target = $(event.target);
+
+                if (target.is('div.popup_container')) {
+
+                    var flag = true;
+
+                    $(this).find('input').each(function (number, element) {
+                                                
+                        var isSubmit = $(this).is('submit');
+
+                        if (!isSubmit) {
+
+                            if ($(this).val() != '') {
+                                flag = false;
+                                return false;
+                            }
+                        }
+                    })
+
+                    if (flag) {
+                        resetForm();
+                    } else {                  
+                        var classData = $('#tableData table tbody tr.active_tr_data').find('td');
+                        var formInput = form.find('input');
+                        var flag = true;
+                        if (classData.length == 0) {
+                            var result = confirm('Do you sure that you want to reset the entered data?');
+                            flag = false;
+                            if (result) {
+                                resetForm();
+                            }
+                            return false;
+                        } else {
+                            for (var i = 0; i < classData.length; i++) {
+                                if (formInput.eq(i).val() !== classData.eq(i).text()) {
+                                    var result = confirm('Do you sure that you want to reset the entered data?');
+                                    flag = false;
+                                    if (result) {
+                                        resetForm();
+                                    }
+                                    return false;
+                                }
+                            }
+                        }
+                        if (flag) {
+                            resetForm();
+                        }
+                        
+                    }
+                }
+            })
+        }
+
+        // Get all objects users
+        this.getAllUsers = function () {
+
+            $.ajax({
+                url: baseUrl,
+                success: function (values) {
+
+                    var tableData = "";
+
+                    for (var i = 0; i < values.length; i++) {
+                        tableData += "<tr>"
+                        tableData += "<td class='id_cell'>" + values[i].Id + "</td>";
+                        tableData += "<td>" + values[i].Number + "</td>";
+
+                        var date = new Date(values[i].Date);
+                        var month = date.getMonth() + 1;
+                        tableData += "<td>" + date.getDate() + " " + month + " " + date.getFullYear() + "</td>";
+
+                        tableData += "<td>" + values[i].Company + "</td>";
+                        tableData += "<td>" + values[i].FirstName + "</td>";
+                        tableData += "<td>" + values[i].SecondName + "</td>";
+                        tableData += "<td>" + values[i].LastName + "</td>";
+                        tableData += "<td>" + values[i].Position + "</td>";
+                        tableData += "<td>" + values[i].Email + "</td>";
+                        tableData += "</tr>";
+                    }
+
+                    table.find('tbody').html(tableData);
+
+                    tbodyTr = $('#tableData table tbody tr');                    
+                    tbodyTr.on('click', function () {
+
+                        tbodyTr.removeClass('active_tr_data');
+                        $(this).toggleClass('active_tr_data');
+                    });
+
+                    table.find('tbody').html(tableData);
+                    table.find('tbody').find('tr').on('click', function () {
+                       
+                        $('#tableData table tbody tr').removeClass('active_tr_data');
+                        $(this).toggleClass('active_tr_data');
+                        id = $(this).find('.id_cell').text();
+                    });
+                },
+                error: errorHandler
+            })
+        }
+
+        // Add a new item
+        var createUser = function (event) {
+
+            $('#error').html('');
+            var objUser = getObjUser();
+
+            $.ajax({
+                url: baseUrl,
+                type: 'POST',
+                data: JSON.stringify(objUser), 
+                dataType: 'json', 
+                contentType: 'application/json;charset=utf-8',
+                success: function (data, textStatus, xhr) {                    
+                    getThis.getAllUsers();
+                },
+                error: errorHandler
+            })
+            resetForm();
+        };
+
+        var updateUser = function (event) {
+
+            $('#error').html('');
+            var objUser = getObjUser();
+
+            $.ajax({
+                url: baseUrl + '/' + objUser.Id,
+                type: 'PUT',
+                data: JSON.stringify(objUser),
+                dataType: 'json',
+                contentType: 'application/json;charset=utf-8',
+                success: function (data, textStatus, xhr) {                    
+                    getThis.getAllUsers();
+                },
+                error: errorHandler
+            })
+            resetForm();
+        };
+  
+        this.formCreateEdit = function (event) {
+
+            form.off('submit');
+            
+            switch (event.target.id) {
+                case 'create':
+                    form.parent().removeClass('popup_off');
+                    eventSubmit = createUser;
+                    break;
+                case 'edit':
+                    var tbodyTrTemp = $('#tableData table tbody tr');
+                    if (tbodyTrTemp.hasClass('active_tr_data')) {
+                        mapingDataOnForm();
+                        form.parent().removeClass('popup_off');
+                        eventSubmit = updateUser;
+                    }
+                    else {
+                        $('#error').html('<span>Do not choose the data to edit.</span>');
+                    }
+                    break;
+                default:
+                    $('#error').html('<span>Unknown error.</span>');
+            }
+            debugger;
+            form.on('submit', inputSubmit, function (event) {
+                event.preventDefault();
+                eventSubmit();
+            });
+            debugger;    
+        }        
+
+        this.deleteUser = function () {
+
+            $('#error').html('');
+            var isExistClass = $('#tableData table tbody');
+           
+            if (isExistClass.find('tr').hasClass('active_tr_data')) {
+
+                var valueId = isExistClass.find('tr.active_tr_data').find('.id_cell').text();
+
+                $.ajax({
+                    url: baseUrl + '/' + valueId,
+                    type: 'DELETE',
+                    success: function (data, textStatus, xhr) {
+                        getThis.getAllUsers();
+                    },
+                    error: errorHandler
+                })
+            } else {
+                $('#error').html('<span>Not selected data.</span>')
+            }
+            debugger;
+        };
+
+        this.getAllUsersTest = function () {
+
+            var values = [
+                { Id: 1, Number: 1, Date: '2016,11,15', Company: 'Art', FirstName: 'Иван', SecondName: 'Иванов', LastName: 'Иванович', Email: 'ivan@mail.com', Position: 'Операток ПК' },
+                { Id: 2, Number: 2, Date: '2016,11,14', Company: 'Diz', FirstName: 'Петр', SecondName: 'Петров', LastName: 'Петрович', Email: 'petr@mail.com', Position: 'Менеджер' },
+                { Id: 3, Number: 3, Date: '2016,11,13', Company: 'Moz', FirstName: 'Сергей', SecondName: 'Сергеев', LastName: 'Сергеевич', Email: 'sergey@mail.com', Position: 'Главный бухгалтер' }
+            ];
+
+            var tableData = "";
+            for (var i = 0; i < values.length; i++) {
+                tableData += "<tr>"
+                tableData += "<td class='id_cell'>" + values[i].Id + "</td>";
+                tableData += "<td>" + values[i].Number + "</td>";
+                var date = new Date(values[i].Date);
+                var month = date.getMonth() + 1;
+                tableData += "<td>" + date.getDate() + " " + month + " " + date.getFullYear() + "</td>";
+                tableData += "<td>" + values[i].Company + "</td>";
+                tableData += "<td>" + values[i].FirstName + "</td>";
+                tableData += "<td>" + values[i].SecondName + "</td>";
+                tableData += "<td>" + values[i].LastName + "</td>";
+                tableData += "<td>" + values[i].Position + "</td>";
+                tableData += "<td>" + values[i].Email + "</td>";
+                tableData += "</tr>";
+            }
+
+            table.find('tbody').html(tableData);
+            //незнаю что лучше
+            table.find('tbody').find('tr').on('click', function () {
+                //$('#tableData table tbody tr').removeClass('.active_tr_data');
+                $('#tableData table tbody tr').removeClass('active_tr_data');
+                $(this).toggleClass('active_tr_data');
+                //                    console.log(this);  // тут получу сам кусок разметки
+                //                    console.log($(this).find('.id_cell')); //тут обращаюсь как к обекту со свойствами
+                id = $(this).find('.id_cell').text();
+            });
+            //table.find('tbody').find('tr').on('focus', function () { id = $('#tableData tr td:first-child').text(); });
+        }
+    }
+
+    var objUI = new ObjUI();
+    objUI.getAllUsers();
+    objUI.cancelForm();
+
+    //The establishment of delegated events
+    $('body').on('click', '#create', objUI.formCreateEdit);
+    $('body').on('click', '#edit', objUI.formCreateEdit);
+    $('body').on('click', '#delete', objUI.deleteUser);
+});
+    </script>
+}
